@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>かんたん来店ポイント</title>
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --sub:#475569;
+      --line:#e2e8f0;
+      --accent:#2563eb;
+      --accent2:#0f766e;
+      --warn:#dc2626;
+      --shadow:0 10px 25px rgba(15,23,42,.08);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:920px;
+      margin:0 auto;
+      padding:20px;
+    }
+    .hero{
+      text-align:center;
+      padding:10px 0 18px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 16px;
+      box-shadow:var(--shadow);
+      font-size:24px;
+      font-weight:700;
+    }
+    .hero h1{
+      font-size:clamp(34px,6vw,56px);
+      margin:18px 0 10px;
+    }
+    .hero p{
+      font-size:clamp(20px,3vw,28px);
+      color:var(--sub);
+      margin:0;
+    }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid var(--line);
+      padding:22px;
+      margin-top:18px;
+    }
+    .title{
+      font-size:clamp(28px,4vw,42px);
+      font-weight:800;
+      text-align:center;
+      margin:0 0 16px;
+    }
+    .big-number{
+      text-align:center;
+      font-size:clamp(72px,14vw,120px);
+      font-weight:900;
+      line-height:1;
+      margin:10px 0 16px;
+    }
+    .progress{
+      text-align:center;
+      font-size:clamp(22px,3vw,30px);
+      color:var(--sub);
+      margin-bottom:20px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+    .btn{
+      width:100%;
+      min-height:88px;
+      border:none;
+      border-radius:24px;
+      font-size:clamp(24px,3.6vw,36px);
+      font-weight:800;
+      cursor:pointer;
+      transition:transform .05s ease, opacity .2s ease;
+    }
+    .btn:active{ transform:scale(.99); }
+    .btn-primary{
+      background:var(--accent);
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#e2e8f0;
+      color:#0f172a;
+    }
+    .btn-outline{
+      background:#fff;
+      color:#0f172a;
+      border:2px solid var(--line);
+    }
+    .meta{
+      text-align:center;
+      font-size:clamp(18px,2.6vw,24px);
+      color:#64748b;
+      margin-top:14px;
+    }
+    .small-number{
+      text-align:center;
+      font-size:clamp(60px,10vw,88px);
+      font-weight:900;
+      line-height:1;
+      margin:10px 0 14px;
+    }
+    .message{
+      min-height:120px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:16px;
+      border-radius:24px;
+      background:#f1f5f9;
+      font-size:clamp(24px,3.2vw,34px);
+      font-weight:700;
+      color:#0f172a;
+      margin-bottom:16px;
+    }
+    .note{
+      border:2px dashed #cbd5e1;
+      background:#fff;
+    }
+    .note p{
+      font-size:clamp(20px,2.7vw,28px);
+      line-height:1.8;
+      margin:4px 0;
+      color:#334155;
+    }
+    .footer{
+      text-align:center;
+      color:#64748b;
+      font-size:16px;
+      margin:16px 0 10px;
+    }
+    @media (max-width: 720px){
+      .row{ grid-template-columns:1fr; }
+      .wrap{ padding:14px; }
+      .card{ padding:18px; }
+      .btn{ min-height:80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">🏪 かんたん来店ポイント</div>
+      <h1>ポイントカード</h1>
+      <p>ボタンを押すだけでポイントがたまります</p>
+    </section>
+
+    <section class="card">
+      <h2 class="title">現在のポイント</h2>
+      <div id="points" class="big-number">0</div>
+      <div id="progress" class="progress">あと 10 ポイントで無料券です</div>
+      <button id="addPointBtn" class="btn btn-primary">＋ 来店で1ポイント</button>
+      <div id="lastVisit" class="meta">最終来店: まだありません</div>
+    </section>
+
+    <div class="row">
+      <section class="card">
+        <h2 class="title">🎫 無料券</h2>
+        <div id="tickets" class="small-number">0</div>
+        <div class="progress">使える無料券の枚数</div>
+        <button id="useTicketBtn" class="btn btn-secondary">無料券を使う</button>
+      </section>
+
+      <section class="card">
+        <h2 class="title">お知らせ</h2>
+        <div id="message" class="message">ご来店ありがとうございます</div>
+        <button id="resetBtn" class="btn btn-outline">リセット</button>
+      </section>
+    </div>
+
+    <section class="card note">
+      <p>・来店時に「来店で1ポイント」を押します</p>
+      <p>・10ポイントたまると自動で無料券1枚になります</p>
+      <p>・無料券は「無料券を使う」で消化できます</p>
+      <p>・データはこの端末内に保存されます</p>
+    </section>
+
+    <div class="footer">このページはスマホのホーム画面に追加して使えます</div>
+  </div>
+
+  <script>
+    const REWARD_THRESHOLD = 10;
+    const STORAGE_KEY = "senior_points_app_html_v1";
+
+    const pointsEl = document.getElementById("points");
+    const ticketsEl = document.getElementById("tickets");
+    const progressEl = document.getElementById("progress");
+    const messageEl = document.getElementById("message");
+    const lastVisitEl = document.getElementById("lastVisit");
+
+    const addPointBtn = document.getElementById("addPointBtn");
+    const useTicketBtn = document.getElementById("useTicketBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let state = {
+      points: 0,
+      tickets: 0,
+      lastVisitDate: "",
+      message: "ご来店ありがとうございます"
+    };
+
+    function todayJa() {
+      return new Date().toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short"
+      });
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function load() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        state.points = Number(data.points || 0);
+        state.tickets = Number(data.tickets || 0);
+        state.lastVisitDate = data.lastVisitDate || "";
+        state.message = data.message || "ご来店ありがとうございます";
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function render() {
+      pointsEl.textContent = state.points;
+      ticketsEl.textContent = state.tickets;
+      messageEl.textContent = state.message;
+      lastVisitEl.textContent = "最終来店: " + (state.lastVisitDate || "まだありません");
+
+      const remain = REWARD_THRESHOLD - state.points;
+      progressEl.textContent = remain <= 0
+        ? "無料券に交換できます"
+        : `あと ${remain} ポイントで無料券です`;
+    }
+
+    function addPoint() {
+      const next = state.points + 1;
+      state.lastVisitDate = todayJa();
+
+      if (next >= REWARD_THRESHOLD) {
+        state.points = 0;
+        state.tickets += 1;
+        state.message = "無料券を1枚プレゼントしました";
+      } else {
+        state.points = next;
+        state.message = "1ポイント追加しました";
+      }
+      save();
+      render();
+    }
+
+    function useTicket() {
+      if (state.tickets <= 0) {
+        state.message = "無料券がありません";
+        save();
+        render();
+        return;
+      }
+      state.tickets -= 1;
+      state.message = "無料券を使いました";
+      save();
+      render();
+    }
+
+    function resetAll() {
+      if (!confirm("ポイントと無料券をリセットしますか？")) return;
+      state = {
+        points: 0,
+        tickets: 0,
+        lastVisitDate: "",
+        message: "リセットしました"
+      };
+      save();
+      render();
+    }
+
+    addPointBtn.addEventListener("click", addPoint);
+    useTicketBtn.addEventListener("click", useTicket);
+    resetBtn.addEventListener("click", resetAll);
+
+    load();
+    render();
+  </script>
+</body>
+</html>
